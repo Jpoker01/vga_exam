@@ -1,0 +1,85 @@
+style.css (Various Versions)
+These CSS files provide the visual styling for the 2D HTML elements (like game-over or victory screens) overlaid on the A-Frame scenes.
+
+They set basic styles for the #app container, ensuring it fills the browser window.
+They define styles for #game-over, #game-win, or #game-victory elements.
+These UI elements are typically positioned in the center of the screen.
+They are hidden by default (display: none).
+Some versions apply semi-transparent backgrounds.
+One version adds a blinking animation (blinker) to the victory screen.
+collider-check.js
+This component is a simple debugging tool.
+
+It requires the raycaster component to be present on the same entity.
+It adds an event listener for raycaster-intersection.
+When an intersection occurs, it logs the intersected elements to the console.
+log-gltf-animations.js
+This component helps inspect animations within loaded GLTF models.
+
+It listens for the model-loaded event.
+When a model loads, it accesses its animations.
+It logs the names of all found animation clips to the console.
+obstacle.js
+This component defines an object that can potentially be destroyed or interacted with.
+
+It has a strength property, defaulting to 100.
+It tracks damage and a hasBeenDestroyed flag.
+It listens for a collide-with-character event, increasing damage upon firing.
+If damage exceeds strength, it removes the entity from the scene.
+In the "Mining" and "Shooting Gallery" scenes, these entities are used as targets or blocks rather than being destroyed by collision.
+Scene 1: Mining/Resource Gathering
+This scene focuses on a player using tools to break down "trees" (represented by boxes).
+
+main.js (Mining Version)
+Imports: Loads A-Frame, extras, physics, and custom components including character (player), obstacle, collider-check, and log-gltf-animations.
+Assets: Preloads 3D models for an axe and a pickaxe, and a grass texture.
+Environment: Sets up a sky, a green ground box, and a blue "water" box.
+Trees: Creates several "trees" using pairs of a-box entities (one for the trunk, one for leaves). These boxes have the obstacle component and are static-body.
+Player: An a-entity with camera and the player component. It has look-controls disabled. It includes an entity holding the tool model (#axe initially). A raycaster is attached, set to detect obstacle entities up to 3 meters away.
+character.js (Mining player Version)
+State: Manages player moveSpeed, tiltSpeed, key presses (w, a, s, d, space, m), a set of hitTargets, a flag isBreaking, the current breakingBlock, the number of blocksMined, and the currentTool.
+Input: Listens for key presses to control movement, start breaking blocks (Space), and switch tools ('m').
+Tool Switching: The switchTool function allows changing between the axe and pickaxe (if 5 blocks have been mined) by changing the gltf-model attribute.
+Block Breaking: startBreaking uses the raycaster to find an obstacle. If a valid block is found, it starts a tool animation, waits 2 seconds, removes the block, updates blocksMined, makes blocks above fall down, stops the animation, and checks for victory.
+Movement: The tick function updates the player's position based on 'w'/'s' keys and rotation based on 'a'/'d' keys.
+Scene 2: Dog Collection
+This scene involves a character exploring and collecting dogs from houses.
+
+main.js (Dog Collection Version)
+Imports: Loads A-Frame, extras, physics, its CSS, and components character, obstacle, collider-check, and house.
+Assets: Loads models for a tree, character, house, and three different dogs, plus a grass texture.
+Environment: Includes a sky and a grass-textured ground.
+Houses: Creates three house entities, each with the house component configured for a specific dog model.
+Character: An a-entity with the character component, physics body, character model, and a raycaster.
+Camera: A separate camera entity is positioned to view the scene.
+character.js (Dog Collection Version)
+Movement: Uses CANNON.Vec3 for physics-based movement, controlled by arrow/WASD keys, and updates character animations.
+Dog Collection: In its tick function, it checks for nearby house entities. If close, it calls pickupDog on the house. It tracks collected dogs and shows a victory screen when all are collected.
+Dog Following: Collected dogs are positioned around the player and follow their movements.
+(Note: house.js was provided in previous interactions but not in the final set. It defines the house component used here.)
+
+Scene 3: Shooting Gallery
+This scene is a target shooting game.
+
+main.js (Shooting Gallery Version)
+Imports: Loads A-Frame, extras, physics, its CSS, and components character (player), obstacle, collider-check, and log-gltf-animations.
+Assets: Loads a pistol model and grass texture.
+Environment: Includes a sky and a ground plane.
+Targets: Creates three targets using cylinders and spheres; the spheres have the obstacle component.
+Player: An a-entity with camera, player component, look-controls (disabled), the pistol model, and a raycaster set to hit obstacle entities.
+character.js (Shooting Gallery player Version)
+State: Tracks keys and a Set of hitTargets.
+Input: Listens for W, A, S, D, and Space.
+Aiming: W/S keys control pitch (X-rotation), and A/D keys control yaw (Y-rotation).
+Shooting: 'Space' triggers shoot, which uses the raycaster. If an obstacle is hit and hasn't been hit before, it adds it to the set and triggers fall/move animations on the target.
+Win Condition: Checks if all targets have been hit and displays the game-win screen.
+Scene 4: Teleportation Puzzle
+This scene involves using raycasting to interact with boxes and teleport.
+
+main.js (Teleportation Version)
+Imports: Loads A-Frame, extras, physics, its CSS, and components character, obstacle, and raycaster_detecion.
+Assets: Loads three planet textures.
+Environment: Includes a dark sky and lights.
+Boxes: Creates many a-box entities with planet textures. They have the raycast-blab component and are classified as fake, real, or final.
+Player: An a-entity myCamera with camera, character, look-controls, wasd-controls, and a raycaster set to interact with raycast-blab objects. (Note the typo odbjects instead of objects).
+(Note: raycaster_detecion.js and its corresponding character.js were provided in previous interactions but not in the final set. They define the raycast-blab and simple character components used here.)
