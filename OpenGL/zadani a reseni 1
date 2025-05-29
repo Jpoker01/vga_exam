@@ -128,3 +128,34 @@ finalColor.rgb = mix(finalColor.rgb, vec3(0.0, 0.0, 0.0), 0.3);: RGB složky bar
 Kombinace efektů: Pokud jsou oba příznaky (v_isRotating i v_isTranslating) pravdivé, efekty se aplikují sekvenčně v pořadí, jak jsou napsány v kódu: nejprve efekt rotace, poté na výsledek efekt translace.
 gl_FragColor = finalColor;: Výsledná modifikovaná barva finalColor je přiřazena jako výstupní barva fragmentu.
 Toto řešení předpokládá, že logika pro určení, zda se objekt otáčí nebo posouvá (tj. nastavení uniform proměnných u_isRotating a u_isTranslating), je implementována v hlavní aplikaci na CPU a tyto stavy jsou každý snímek předávány do shaderů.
+
+
+Hodnoty určující, zda se vrchol (nebo přesněji celý objekt, jehož je vrchol součástí) otáčí nebo posouvá, se musí nastavovat mimo shader z několika klíčových důvodů souvisejících s tím, jak shadery fungují a jak je řízena grafická pipeline:
+
+Shadery jsou programy pro zpracování dat, nikoli pro řízení stavu aplikace:
+
+Vertex a fragment shadery jsou malé programy běžící na grafickém procesoru (GPU). Jejich hlavním úkolem je provádět operace na velkém množství dat paralelně – vertex shader zpracovává jednotlivé vrcholy a fragment shader jednotlivé pixely (fragmenty).    
+Nemají přímý přístup k celkovému stavu vaší aplikace, k uživatelskému vstupu (stisknutí klávesy, pohyb myši), k fyzikální simulaci nebo k logice animace, která určuje, zda se objekt právě teď otáčí nebo posouvá. Tyto aspekty jsou řízeny hlavním programem běžícím na CPU.
+Shadery operují na datech pro aktuální snímek:
+
+Shader dostává data pro aktuálně vykreslovaný snímek. Vertex shader obdrží atributy vrcholů (jako pozice, barva) a uniformní proměnné (jako transformační matice, čas, nebo právě příznaky u_isRotating, u_isTranslating).    
+Shader sám o sobě nemá paměť o předchozích snímcích nebo událostech v aplikaci, aby mohl odvodit, že "objekt se začal otáčet" nebo "objekt se přestal pohybovat".
+Oddělení zodpovědností (CPU vs. GPU):
+
+CPU (aplikace): Je zodpovědné za herní logiku, zpracování vstupu, fyziku, animace a rozhodování o tom, co se s objekty ve scéně děje. Například, pokud uživatel stiskne klávesu pro rotaci, CPU tuto událost zaznamená a nastaví příslušný stav (např. "objekt se otáčí").    
+GPU (shadery): Je zodpovědné za rychlé a efektivní vykreslení scény na základě dat a instrukcí, které mu CPU poskytne.    
+Uniformní proměnné jako komunikační kanál:
+
+Aby shader mohl reagovat na stav určený aplikací (jako je rotace nebo posun), musí mu aplikace tento stav explicitně sdělit. K tomu slouží uniform proměnné.    
+Ve vašem případě (a v mém předchozím řešení) jsou uniform bool u_isRotating; a uniform bool u_isTranslating; přesně těmito komunikačními kanály. Aplikace na CPU určí, zda se objekt otáčí/posouvá, a nastaví tyto booleovské hodnoty. Shadery je pak přečtou a podle nich upraví barvu a průhlednost.
+Jak by to vypadalo v praxi:
+
+Vaše hlavní aplikace (např. v C++, JavaScriptu) by měla kód, který například detekuje stisk klávesy pro pohyb.
+Pokud je klávesa stisknuta, aplikace nastaví proměnnou isMovingThisFrame = true;.
+Před vykreslením objektu aplikace nahraje hodnotu této proměnné do uniform bool u_isTranslating v shaderu.
+Vertex shader pak tuto uniform hodnotu přečte a předá ji (pomocí varying nebo flat out proměnné) fragment shaderu.
+Fragment shader na základě této hodnoty aplikuje požadovaný efekt (ztmavení).
+Shader tedy sám "nezjistí", že se objekt otáčí nebo pohybuje ve smyslu aplikační logiky. Může sice pracovat s daty, která implikují pohyb nebo rotaci (např. změna transformační matice v čase, předaný úhel rotace ), ale rozhodnutí, zda se má aplikovat specifický efekt, protože "objekt je ve stavu otáčení", přichází z vnějšku – od řídící aplikace.   
+
+
+
