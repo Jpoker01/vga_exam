@@ -1,5 +1,26 @@
 # AFRAME
 
+
+
+
+
+<a-box obstacle="strength: 9999" static-body position="1.5 1.5 -6" width="1" height="3" depth="1" color="#8B4513" material="opacity: 1"></a-box> 
+what are the positions 
+
+
+
+Show thinking
+
+Based on the A-Frame code snippet you provided:
+<a-box obstacle="strength: 9999" static-body position="1.5 1.5 -6" width="1" height="3" depth="1" color="#8B4513" material="opacity: 1"></a-box>
+The positions are defined by the position attribute: position="1.5 1.5 -6".
+This breaks down as follows in the A-Frame coordinate system (X Y Z):
+	• X-coordinate: 1.5 (1.5 meters to the right of the origin).
+	• Y-coordinate: 1.5 (1.5 meters up from the origin).
+	• Z-coordinate: -6 (6 meters forward/into the scene from the origin).
+This line of code can be found in the main.js file associated with the mining/tree-cutting scene.![image](https://github.com/user-attachments/assets/143b3710-5b82-439d-8cf4-fa9ff9c9534c)
+
+
 ### Good to known:
 
 Visual Inspector - CTRL + OPTION + I
