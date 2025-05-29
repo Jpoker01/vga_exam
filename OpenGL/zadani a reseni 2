@@ -1,3 +1,9 @@
+Dobře, na základě obrázku, který jste poskytl, je zde přepis původního zadání:
+
+Zadání:
+
+Napište kód vertex a/nebo fragment shaderu, které implementují následující problém: Jsou předány následující hodnoty vrcholů: pozice a barva. Dále jsou předány samostatné projekční a modelview matice (pro změnu pozice vrcholů). Napište shader(y), které vykreslí daný objekt předanou barvou, pokud je objekt statický. Pokud objekt posouvá (ne rotuje), bude červený.
+
 Jistě, na základě vašeho zadání a předchozích znalostí jsem připravil řešení pomocí GLSL shaderů.
 
 Níže naleznete kód pro vertex a fragment shader, který implementuje požadovanou funkcionalitu, a následně podrobné vysvětlení.
